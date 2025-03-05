@@ -1,29 +1,42 @@
 # built-in dependencies
 import os
+import subprocess
+from functools import partial
 from typing import Optional
 import zipfile
 import bz2
 
 # 3rd party dependencies
 import gdown
+import keras
+import numpy as np
+import onnx
+import tf2onnx
+from tensorflow.python.compiler.tensorrt import trt_convert as trt
+from tf_keras.export import ExportArchive
+from tensorflow.core.protobuf import saver_pb2
+from tensorflow.python.keras import Model
+from tensorflow.python.keras.models import save_model
 
 # project dependencies
 from deepface.commons import folder_utils, package_utils
 from deepface.commons.logger import Logger
-
 
 tf_version = package_utils.get_tf_major_version()
 if tf_version == 1:
     from keras.models import Sequential
 else:
     from tensorflow.keras.models import Sequential
+    import tensorflow as tf
+    physical_devices = tf.config.list_physical_devices('GPU')
+    for device in physical_devices:
+        tf.config.experimental.set_memory_growth(device, True)
 
 logger = Logger()
 
 # pylint: disable=line-too-long, use-maxsplit-arg
 
 ALLOWED_COMPRESS_TYPES = ["zip", "bz2"]
-
 
 def download_weights_if_necessary(
     file_name: str, source_url: str, compress_type: Optional[str] = None
@@ -77,11 +90,11 @@ def download_weights_if_necessary(
     return target_file
 
 
-def load_model_weights(model: Sequential, weight_file: str) -> Sequential:
+def load_model_weights(model: Model, weight_file: str) -> Model:
     """
     Load pre-trained weights for a given model
     Args:
-        model (keras.models.Sequential): pre-built model
+        model (keras.models.Model): pre-built model
         weight_file (str): exact path of pre-trained weights
     Returns:
         model (keras.models.Sequential): pre-built model with
@@ -98,6 +111,59 @@ def load_model_weights(model: Sequential, weight_file: str) -> Sequential:
             "and copying it to the target folder."
         ) from err
     return model
+
+def convert_model_to_saved_model(model: Model, model_name: str, build_batch_size=10):
+    home = folder_utils.get_deepface_home()
+    pb_path = os.path.normpath(os.path.join(home, ".deepface/weights", model_name, "tf_saved_model"))
+    os.makedirs(os.path.join(pb_path), exist_ok=True)
+    pb_path_file = os.path.join(pb_path, "saved_model.pb")
+    if os.path.exists(pb_path_file):
+        return
+    else:
+        print("pb path file does not exist")
+        tf.saved_model.save(model, pb_path, signatures=tf.function(model, input_signature=[tf.TensorSpec(model.input_shape, name="input")]).get_concrete_function())
+
+def convert_model_to_onnx(model: Model, model_name: str, build_batch_size=10):
+    home = folder_utils.get_deepface_home()
+    onnx_path = os.path.normpath(os.path.join(home, ".deepface/weights", model_name, "onnx"))
+    saved_model = os.path.normpath(os.path.join(home, ".deepface/weights", model_name, "saved_model"))
+    os.makedirs(os.path.join(onnx_path), exist_ok=True)
+    os.makedirs(os.path.join(saved_model), exist_ok=True)
+    onnx_path_file = os.path.join(onnx_path, "saved_model.pb")
+    if os.path.exists(onnx_path_file):
+        return
+    else:
+        print("onnx path file does not exist")
+        print(f"InputShape: {model.input_shape}")
+        tf.saved_model.save(model, signatures=tf.function(model, input_signature=[tf.TensorSpec(model.input_shape, name="input")]).get_concrete_function(),export_dir=saved_model)
+
+        # use tf2onnx to convert to onnx model
+        cmd = 'python -m tf2onnx.convert --saved-model {} --output {} --opset {}'.format(saved_model,onnx_path_file, 18)
+        process = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
+        output, error = process.communicate()
+
+
+def convert_model_to_trt_pb(model: Model, model_name: str, build_batch_size: int = 10) -> None:
+    home = folder_utils.get_deepface_home()
+    trt_path = os.path.normpath(os.path.join(home, ".deepface/weights", model_name, "trt"))
+    onnx_path = os.path.normpath(os.path.join(home, ".deepface/weights", model_name, "saved_model"))
+    os.makedirs(os.path.join(trt_path), exist_ok=True)
+    if os.path.exists(os.path.join(trt_path, "saved_model.pb")):
+        return
+    else:
+        def input_fnc(batch_size, inputs):
+            image_shape = (inputs[1], inputs[2], 3)
+            # image_shape = (3, imgsz, imgsz)
+            data_shape = (batch_size,) + image_shape
+
+            for _ in range(100):
+                img = np.random.uniform(-1, 1, size=data_shape).astype("float32")
+                yield (img,)
+
+        converter = trt.TrtGraphConverterV2(input_saved_model_dir=onnx_path, precision_mode=trt.TrtPrecisionMode.FP32,minimum_segment_size=3,max_workspace_size_bytes=6000000000)
+        converter.convert()
+        converter.build(input_fn=partial(input_fnc, build_batch_size, model.input_shape))
+        converter.save(output_saved_model_dir=trt_path, save_gpu_specific_engines=True)
 
 
 def download_all_models_in_one_shot() -> None:

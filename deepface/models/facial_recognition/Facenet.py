@@ -12,32 +12,37 @@ tf_version = package_utils.get_tf_major_version()
 
 if tf_version == 1:
     from keras.models import Model
-    from keras.layers import Activation
-    from keras.layers import BatchNormalization
-    from keras.layers import Concatenate
-    from keras.layers import Conv2D
-    from keras.layers import Dense
-    from keras.layers import Dropout
-    from keras.layers import GlobalAveragePooling2D
-    from keras.layers import Input
-    from keras.layers import Lambda
-    from keras.layers import MaxPooling2D
-    from keras.layers import add
+    from keras.models import (
+        Activation,
+        BatchNormalization,
+        Concatenate,
+        Conv2D,
+        Dense,
+        Dropout,
+        GlobalAveragePooling2D,
+        Input,
+        Lambda,
+        MaxPooling2D,
+        add,
+    )
     from keras import backend as K
 else:
-    from tensorflow.keras.models import Model
-    from tensorflow.keras.layers import Activation
-    from tensorflow.keras.layers import BatchNormalization
-    from tensorflow.keras.layers import Concatenate
-    from tensorflow.keras.layers import Conv2D
-    from tensorflow.keras.layers import Dense
-    from tensorflow.keras.layers import Dropout
-    from tensorflow.keras.layers import GlobalAveragePooling2D
-    from tensorflow.keras.layers import Input
-    from tensorflow.keras.layers import Lambda
-    from tensorflow.keras.layers import MaxPooling2D
-    from tensorflow.keras.layers import add
-    from tensorflow.keras import backend as K
+    from tf_keras.models import Model
+    from tf_keras.layers import (
+        Activation,
+        BatchNormalization,
+        Concatenate,
+        Conv2D,
+        Dense,
+        Dropout,
+        GlobalAveragePooling2D,
+        Input,
+        Lambda,
+        MaxPooling2D,
+        add,
+    )
+    from tf_keras import backend as K
+
 
 # pylint:disable=line-too-long
 FACENET128_WEIGHTS = (
@@ -56,10 +61,32 @@ class FaceNet128dClient(FacialRecognition):
     """
 
     def __init__(self):
-        self.model = load_facenet128d_model()
         self.model_name = "FaceNet-128d"
         self.input_shape = (160, 160)
         self.output_shape = 128
+        self.model = self.load_facenet128d_model()
+
+
+    def load_facenet128d_model(self,
+            url=FACENET128_WEIGHTS,
+    ) -> Model:
+        """
+        Construct FaceNet-128d model, download weights and then load weights
+        Args:
+            dimension (int): construct FaceNet-128d or FaceNet-512d models
+        Returns:
+            model (Model)
+        """
+        model = InceptionResNetV1()
+
+        weight_file = weight_utils.download_weights_if_necessary(
+            file_name="facenet_weights.h5", source_url=url
+        )
+        model = weight_utils.load_model_weights(model=model, weight_file=weight_file)
+        weight_utils.convert_model_to_saved_model(model=model, model_name=self.model_name)
+        weight_utils.convert_model_to_onnx(model=model,model_name=self.model_name)
+        weight_utils.convert_model_to_trt_pb(model=model, model_name=self.model_name)
+        return model
 
 
 class FaceNet512dClient(FacialRecognition):
@@ -68,10 +95,31 @@ class FaceNet512dClient(FacialRecognition):
     """
 
     def __init__(self):
-        self.model = load_facenet512d_model()
         self.model_name = "FaceNet-512d"
         self.input_shape = (160, 160)
         self.output_shape = 512
+        self.model = self.load_facenet512d_model()
+
+
+    def load_facenet512d_model(self,
+            url=FACENET512_WEIGHTS,
+    ) -> Model:
+        """
+        Construct FaceNet-512d model, download its weights and load
+        Returns:
+            model (Model)
+        """
+
+        model = InceptionResNetV1(dimension=512)
+
+        weight_file = weight_utils.download_weights_if_necessary(
+            file_name="facenet512_weights.h5", source_url=url
+        )
+        model = weight_utils.load_model_weights(model=model, weight_file=weight_file)
+        weight_utils.convert_model_to_saved_model(model=model, model_name=self.model_name)
+        weight_utils.convert_model_to_onnx(model=model,model_name=self.model_name)
+        weight_utils.convert_model_to_trt_pb(model=model, model_name=self.model_name)
+        return model
 
 
 def scaling(x, scale):
@@ -1660,41 +1708,11 @@ def InceptionResNetV1(dimension: int = 128) -> Model:
 
     return model
 
-
-def load_facenet128d_model(
-    url=FACENET128_WEIGHTS,
-) -> Model:
-    """
-    Construct FaceNet-128d model, download weights and then load weights
-    Args:
-        dimension (int): construct FaceNet-128d or FaceNet-512d models
-    Returns:
-        model (Model)
-    """
-    model = InceptionResNetV1()
-
-    weight_file = weight_utils.download_weights_if_necessary(
-        file_name="facenet_weights.h5", source_url=url
-    )
-    model = weight_utils.load_model_weights(model=model, weight_file=weight_file)
-
-    return model
-
-
-def load_facenet512d_model(
-    url=FACENET512_WEIGHTS,
-) -> Model:
-    """
-    Construct FaceNet-512d model, download its weights and load
-    Returns:
-        model (Model)
-    """
-
-    model = InceptionResNetV1(dimension=512)
-
-    weight_file = weight_utils.download_weights_if_necessary(
-        file_name="facenet512_weights.h5", source_url=url
-    )
-    model = weight_utils.load_model_weights(model=model, weight_file=weight_file)
-
-    return model
+if __name__ == '__main__':
+    USE_PB = True
+    test = FaceNet512dClient()
+    for layer in test.model.layers:
+        print(layer.name, layer.input_shape, layer.output_shape)
+    test = FaceNet128dClient()
+    for layer in test.model.layers:
+        print(layer.name, layer.input_shape, layer.output_shape)

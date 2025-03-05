@@ -28,10 +28,10 @@ if tf_major == 1:
         PReLU,
     )
 else:
-    from tensorflow import keras
-    from tensorflow.keras import backend as K
-    from tensorflow.keras.models import Model
-    from tensorflow.keras.layers import (
+    import tf_keras as keras
+    from tf_keras import backend as K
+    from tf_keras.models import Model
+    from tf_keras.layers import (
         Activation,
         Add,
         BatchNormalization,
@@ -64,19 +64,21 @@ class GhostFaceNetClient(FacialRecognition):
         self.model_name = "GhostFaceNet"
         self.input_shape = (112, 112)
         self.output_shape = 512
-        self.model = load_model()
+        self.model = self.load_model()
 
 
-def load_model():
-    model = GhostFaceNetV1()
+    def load_model(self):
+        model = GhostFaceNetV1()
 
-    weight_file = weight_utils.download_weights_if_necessary(
-        file_name="ghostfacenet_v1.h5", source_url=WEIGHTS_URL
-    )
+        weight_file = weight_utils.download_weights_if_necessary(
+            file_name="ghostfacenet_v1.h5", source_url=WEIGHTS_URL
+        )
 
-    model = weight_utils.load_model_weights(model=model, weight_file=weight_file)
-
-    return model
+        model = weight_utils.load_model_weights(model=model, weight_file=weight_file)
+        weight_utils.convert_model_to_saved_model(model=model, model_name=self.model_name)
+        weight_utils.convert_model_to_onnx(model=model, model_name=self.model_name)
+        weight_utils.convert_model_to_trt_pb(model=model, model_name=self.model_name)
+        return model
 
 
 def GhostFaceNetV1() -> Model:
@@ -302,3 +304,9 @@ def replace_relu_with_prelu(model) -> Model:
 
     input_tensors = keras.layers.Input(model.input_shape[1:])
     return keras.models.clone_model(model, input_tensors=input_tensors, clone_function=convert_relu)
+
+if __name__ == '__main__':
+    USE_PB = True
+    test = GhostFaceNetClient()
+    for layer in test.model.layers:
+        print(layer.name, layer.input_shape, layer.output_shape)

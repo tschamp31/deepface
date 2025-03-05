@@ -7,7 +7,7 @@ on:
       - 'deepface/**'  
       - 'tests/**'
       - 'api/**'
-      - 'requirements.txt'
+      - '../../Tensorflow-Docker/requirements.txt'
       - '.gitignore'
       - 'setup.py'
   pull_request:
@@ -16,7 +16,7 @@ on:
       - 'deepface/**'  
       - 'tests/**'
       - 'api/**'
-      - 'requirements.txt'
+      - '../../Tensorflow-Docker/requirements.txt'
       - '.gitignore'
       - 'setup.py'
 
