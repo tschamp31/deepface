@@ -4,6 +4,7 @@ import os
 # 3rd party dependencies
 import cv2
 import pandas as pd
+from nvidia import nvimgcodec
 
 # project dependencies
 from deepface import DeepFace
@@ -12,7 +13,7 @@ from deepface.commons import image_utils
 from deepface.commons.logger import Logger
 
 logger = Logger()
-
+ImageDecoder = nvimgcodec.Decoder()
 
 threshold = verification.find_threshold(model_name="VGG-Face", distance_metric="cosine")
 
@@ -39,7 +40,7 @@ def test_find_with_exact_path():
 
 def test_find_with_array_input():
     img_path = os.path.join("dataset", "img1.jpg")
-    img1 = cv2.imread(img_path)
+    img1 = ImageDecoder.read(img_path)
     dfs = DeepFace.find(img1, db_path="dataset", silent=True)
     assert len(dfs) > 0
     for df in dfs:

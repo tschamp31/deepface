@@ -3,7 +3,7 @@ from typing import Tuple
 
 # 3rd party
 import numpy as np
-import cv2
+import cvcuda as cv2
 
 # project dependencies
 from deepface.commons import package_utils

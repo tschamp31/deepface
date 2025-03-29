@@ -4,7 +4,7 @@ from typing import List
 
 # 3rd party dependencies
 import numpy as np
-import cv2
+import cvcuda as cv2
 
 # project dependencies
 from deepface.commons import weight_utils

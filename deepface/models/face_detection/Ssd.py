@@ -3,7 +3,7 @@ from typing import List
 from enum import IntEnum
 
 # 3rd party dependencies
-import cv2
+import cvcuda as cv2
 import numpy as np
 
 # project dependencies

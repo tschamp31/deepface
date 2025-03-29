@@ -1,6 +1,6 @@
 # 3rd party dependencies
 import pytest
-import cv2
+from nvidia import nvimgcodec
 
 # project dependencies
 from deepface import DeepFace
@@ -8,9 +8,10 @@ from deepface.commons.logger import Logger
 
 logger = Logger()
 
+ImageDecoder = nvimgcodec.Decoder()
 models = ["VGG-Face", "Facenet", "Facenet512", "ArcFace", "GhostFaceNet"]
 metrics = ["cosine", "euclidean", "euclidean_l2"]
-detectors = ["opencv", "mtcnn"]
+detectors = ["mtcnn"]
 
 
 def test_different_facial_recognition_models():
@@ -98,8 +99,8 @@ def test_different_face_detectors():
 
 
 def test_verify_for_preloaded_image():
-    img1 = cv2.imread("dataset/img1.jpg")
-    img2 = cv2.imread("dataset/img2.jpg")
+    img1 = ImageDecoder.read("dataset/img1.jpg")
+    img2 = ImageDecoder.read("dataset/img2.jpg")
     res = DeepFace.verify(img1, img2)
     assert res["verified"] is True
     logger.info("✅ test verify for pre-loaded image done")

@@ -1,6 +1,8 @@
 # 3rd party dependencies
 import cv2
 import numpy as np
+from nvidia import nvimgcodec
+import cvcuda as cuda
 
 # project dependencies
 from deepface import DeepFace
@@ -8,7 +10,7 @@ from deepface.models.demography import Age, Emotion, Gender, Race
 from deepface.commons.logger import Logger
 
 logger = Logger()
-
+ImageDecoder = nvimgcodec.Decoder()
 
 detectors = ["opencv", "mtcnn"]
 
@@ -101,7 +103,7 @@ def test_analyze_for_some_actions():
 
 
 def test_analyze_for_preloaded_image():
-    img = cv2.imread("dataset/img1.jpg")
+    img = ImageDecoder.read("dataset/img1.jpg")
     resp_objs = DeepFace.analyze(img, silent=True)
 
     # return type should be list of dict for non batch input
@@ -184,7 +186,7 @@ def test_analyze_for_batched_image_as_list_of_numpy():
 
     imgs = []
     for img_path in img_paths:
-        img = cv2.imread(img_path)
+        img = ImageDecoder.read(img_path)
         imgs.append(img)
 
     demography_batch = DeepFace.analyze(img_path=imgs, silent=True)
@@ -211,13 +213,13 @@ def test_analyze_for_numpy_batched_image():
     img2_path = "dataset/couple.jpg"
 
     # Copy and combine the same image to create multiple faces
-    img1 = cv2.imread(img1_path)
-    img2 = cv2.imread(img2_path)
+    img1 = ImageDecoder.read(img1_path)
+    img2 = ImageDecoder.read(img2_path)
 
     expected_num_faces = [1, 2]
 
-    img1 = cv2.resize(img1, (500, 500))
-    img2 = cv2.resize(img2, (500, 500))
+    img1 = cuda.resize(img1, (500, 500))
+    img2 = cuda.resize(img2, (500, 500))
 
     img = np.stack([img1, img2])
     assert len(img.shape) == 4  # Check dimension.
@@ -246,7 +248,7 @@ def test_analyze_for_numpy_batched_image():
 
 def test_batch_detect_age_for_multiple_faces():
     # Load test image and resize to model input size
-    img = cv2.resize(cv2.imread("dataset/img1.jpg"), (224, 224))
+    img = cuda.resize(ImageDecoder.read("dataset/img1.jpg"), (224, 224))
     imgs = [img, img]
     results = Age.ApparentAgeClient().predict(imgs)
     # Check there are two ages detected
@@ -259,7 +261,7 @@ def test_batch_detect_age_for_multiple_faces():
 
 def test_batch_detect_emotion_for_multiple_faces():
     # Load test image and resize to model input size
-    img = cv2.resize(cv2.imread("dataset/img1.jpg"), (224, 224))
+    img = cuda.resize(ImageDecoder.read("dataset/img1.jpg"), (224, 224))
     imgs = [img, img]
     results = Emotion.EmotionClient().predict(imgs)
     # Check there are two emotions detected
@@ -271,7 +273,7 @@ def test_batch_detect_emotion_for_multiple_faces():
 
 def test_batch_detect_gender_for_multiple_faces():
     # Load test image and resize to model input size
-    img = cv2.resize(cv2.imread("dataset/img1.jpg"), (224, 224))
+    img = cuda.resize(ImageDecoder.read("dataset/img1.jpg"), (224, 224))
     imgs = [img, img]
     results = Gender.GenderClient().predict(imgs)
     # Check there are two genders detected
@@ -283,7 +285,7 @@ def test_batch_detect_gender_for_multiple_faces():
 
 def test_batch_detect_race_for_multiple_faces():
     # Load test image and resize to model input size
-    img = cv2.resize(cv2.imread("dataset/img1.jpg"), (224, 224))
+    img = cuda.resize(ImageDecoder.read("dataset/img1.jpg"), (224, 224))
     imgs = [img, img]
     results = Race.RaceClient().predict(imgs)
     # Check there are two races detected

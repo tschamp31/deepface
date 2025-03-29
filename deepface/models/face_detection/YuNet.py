@@ -3,7 +3,7 @@ import os
 from typing import Any, List
 
 # 3rd party dependencies
-import cv2
+import cvcuda as cv2
 import numpy as np
 
 # project dependencies

@@ -5,6 +5,7 @@ import base64
 import cv2
 import numpy as np
 import pytest
+from nvidia import nvimgcodec
 
 # project dependencies
 from deepface import DeepFace
@@ -12,13 +13,14 @@ from deepface.commons import image_utils
 from deepface.commons.logger import Logger
 
 logger = Logger()
+ImageDecoder = nvimgcodec.Decoder()
 
 detectors = ["opencv", "mtcnn", "ssd"]
 
 
 def test_different_detectors():
     img_path = "dataset/img11.jpg"
-    img = cv2.imread(img_path)
+    img = ImageDecoder.read(img_path)
     height, width, _ = img.shape
 
     for detector in detectors:
@@ -123,7 +125,7 @@ def test_facial_coordinates_are_in_borders():
     expected_faces = [7, 5]
 
     img_path = "dataset/selfie-many-people.jpg"
-    img = cv2.imread(img_path)
+    img = ImageDecoder.read(img_path)
     height, width, _ = img.shape
 
     for i, detector_backend in enumerate(detectors):

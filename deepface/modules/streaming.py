@@ -7,7 +7,7 @@ import traceback
 # 3rd party dependencies
 import numpy as np
 import pandas as pd
-import cv2
+import cvcuda as cv2
 
 # project dependencies
 from deepface import DeepFace

@@ -3,8 +3,11 @@ from typing import Any, Dict, IO, List, Tuple, Union, Optional
 
 # 3rd part dependencies
 from heapq import nlargest
+
+import cvcuda
 import numpy as np
-import cv2
+import cvcuda as nvcv
+from nvidia import nvimgcodec
 
 # project dependencies
 from deepface.modules import modeling

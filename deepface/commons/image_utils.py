@@ -9,11 +9,13 @@ from pathlib import Path
 # 3rd party dependencies
 import requests
 import numpy as np
-import cv2
+import cvcuda
+import tensorflow as tf
+import tf_keras
 from PIL import Image
 from werkzeug.datastructures import FileStorage
-
-
+from nvidia import nvimgcodec
+ImageDecoder = nvimgcodec.Decoder()
 IMAGE_EXTS = {".jpg", ".jpeg", ".png"}
 PIL_EXTS = {"jpeg", "png"}
 
@@ -123,10 +125,18 @@ def load_image(img: Union[str, np.ndarray, IO[bytes]]) -> Tuple[np.ndarray, str]
     if not img.isascii():
         raise ValueError(f"Input image must not have non-english characters - {img}")
 
-    img_obj_bgr = cv2.imread(img)
-    # img_obj_rgb = cv2.cvtColor(img_obj_bgr, cv2.COLOR_BGR2RGB)
-    return img_obj_bgr, img
+    raw = tf.io.read_file(img)
+    image = tf.image.decode_image(raw)
+    # img_obj_bgr = ImageDecoder.read(image)
+    img_obj_bgr = image[...,::-1] #far far quicker than opencv
+    return img_obj_bgr, image
 
+@tf.function
+def load_image_graph(filename):
+  raw = tf.io.read_file(filename)
+  image = tf.image.decode_image(raw)
+  img_obj_bgr = image[...,::-1]
+  return img_obj_bgr, image
 
 def load_image_from_io_object(obj: IO[bytes]) -> np.ndarray:
     """
@@ -144,8 +154,7 @@ def load_image_from_io_object(obj: IO[bytes]) -> np.ndarray:
     else:
         seekable = True
     try:
-        nparr = np.frombuffer(obj.read(), np.uint8)
-        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        img = tf.make_ndarray(tf.io.decode_image(obj.read()))
         if img is None:
             raise ValueError("Failed to decode image")
         return img
@@ -169,17 +178,18 @@ def load_image_from_base64(uri: str) -> np.ndarray:
         raise ValueError("format error in base64 encoded string")
 
     encoded_data = encoded_data_parts[1]
-    decoded_bytes = base64.b64decode(encoded_data)
-
+    base64_tensor = tf.io.decode_base64(encoded_data)
+    img = tf.make_ndarray(tf.io.decode_image(base64_tensor))
+    img_bgr = img[..., ::-1]
     # similar to find functionality, we are just considering these extensions
     # content type is safer option than file extension
-    with Image.open(io.BytesIO(decoded_bytes)) as img:
-        file_type = img.format.lower()
-        if file_type not in {"jpeg", "png"}:
-            raise ValueError(f"Input image can be jpg or png, but it is {file_type}")
+    #with Image.open(io.BytesIO(decoded_bytes)) as img:
+    #    file_type = img.format.lower()
+    #    if file_type not in {"jpeg", "png"}:
+    #        raise ValueError(f"Input image can be jpg or png, but it is {file_type}")
 
-    nparr = np.frombuffer(decoded_bytes, np.uint8)
-    img_bgr = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    #nparr = np.frombuffer(decoded_bytes, np.uint8)
+    #img_bgr = ImageDecoder.read(nparr, cv2.IMREAD_COLOR)
     # img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
     return img_bgr
 
@@ -192,8 +202,9 @@ def load_image_from_file_storage(file: FileStorage) -> np.ndarray:
     Returns:
         img (np.ndarray): The decoded image as a numpy array (OpenCV format).
     """
-    file_bytes = np.frombuffer(file.read(), np.uint8)
-    image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+    #file_bytes = np.frombuffer(file.read(), np.uint8)
+    #image = ImageDecoder.read(file_bytes, cv2.IMREAD_COLOR)
+    image = tf.make_ndarray(tf.io.decode_image(file.read()))
     if image is None:
         raise ValueError("Failed to decode image")
     return image
@@ -207,8 +218,9 @@ def load_image_from_web(url: str) -> np.ndarray:
     Returns:
         img (np.ndarray): equivalent to pre-loaded image from opencv (BGR format)
     """
-    response = requests.get(url, stream=True, timeout=60)
-    response.raise_for_status()
-    image_array = np.asarray(bytearray(response.raw.read()), dtype=np.uint8)
-    img = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+    #response = requests.get(url, stream=True, timeout=60)
+    #response.raise_for_status()
+    #image_array = np.asarray(bytearray(response.raw.read()), dtype=np.uint8)
+    #img = ImageDecoder.read(image_array, cv2.IMREAD_COLOR)
+    img = tf_keras.utils.get_file(fname=url.split("/")[-1], origin=url)
     return img

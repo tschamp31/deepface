@@ -3,7 +3,7 @@ from typing import Any, List, Union
 
 # 3rd party dependencies
 import numpy as np
-import cv2 as cv
+import cvcuda as cv
 
 # project dependencies
 from deepface.commons import weight_utils

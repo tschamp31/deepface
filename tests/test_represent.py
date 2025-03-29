@@ -4,13 +4,15 @@ import cv2
 import pytest
 import numpy as np
 import pytest
+from nvidia import nvimgcodec
+import cvcuda as cuda
 
 # project dependencies
 from deepface import DeepFace
 from deepface.commons.logger import Logger
 
 logger = Logger()
-
+ImageDecoder = nvimgcodec.Decoder()
 
 def test_standard_represent():
     img_path = "dataset/img1.jpg"
@@ -64,7 +66,7 @@ def test_represent_for_skipped_detector_backend_with_image_path():
 
 def test_represent_for_preloaded_image():
     face_img = "dataset/img5.jpg"
-    img = cv2.imread(face_img)
+    img = ImageDecoder.read(face_img)
     img_objs = DeepFace.represent(img_path=img)
     # type should be list of dict
     assert isinstance(img_objs, list)
@@ -85,7 +87,7 @@ def test_represent_for_preloaded_image():
 
 def test_represent_for_skipped_detector_backend_with_preloaded_image():
     face_img = "dataset/img5.jpg"
-    img = cv2.imread(face_img)
+    img = ImageDecoder.read(face_img)
     img_objs = DeepFace.represent(img_path=img, detector_backend="skip")
     assert len(img_objs) >= 1
     img_obj = img_objs[0]
@@ -213,9 +215,9 @@ def test_batched_represent_for_numpy_input(model_name):
 
     imgs = []
     for img_path in img_paths:
-        img = cv2.imread(img_path)
-        img = cv2.resize(img, (1000, 1000))
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = ImageDecoder.read(img_path)
+        img = cuda.resize(img, (1000, 1000))
+        img = cuda.cvtColor(img, cv2.COLOR_BGR2RGB)
         # print(img.shape)
         imgs.append(img)
 
