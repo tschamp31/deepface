@@ -14,8 +14,8 @@
 			"installOhMyZsh": "false",
 			"installOhMyZshConfig": "false",
 			"username": "vscode",
-			"userUid": "1000",
-			"userGid": "1000",
+			"userUid": "1001",
+			"userGid": "1001",
 			"upgradePackages": "true"
 		},
 
@@ -63,9 +63,10 @@
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
-    "remoteUser": "pycharmUser",
+    "remoteUser": "vscode",
 	"privileged": true,
 	"runArgs": ["--gpus", "all", "--ipc", "host","--ulimit", "memlock=-1", "--ulimit", "stack=67108864"],
 
-    "onCreateCommand": "sudo ln -sf /usr/bin/dash /usr/bin/sh"
+    "onCreateCommand": ["sudo", "ln", "-sf", "/usr/bin/dash", "/usr/bin/sh"],
+    "postAttachCommand": ["git", "config", "--global", "--add", "safe.directory", "/IdeaProjects/deepface"]
 }
