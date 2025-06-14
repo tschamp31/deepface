@@ -14,7 +14,6 @@ from deepface.models.facial_recognition import (
     GhostFaceNet
 )
 from deepface.models.face_detection import (
-    FastMtCnn,
     MediaPipe,
     MtCnn,
     OpenCv,
@@ -82,7 +81,6 @@ def build_model(task: str, model_name: str) -> Any:
             "yolov11s": YoloFaceDetector.YoloDetectorClientV11s,
             "yolov11m": YoloFaceDetector.YoloDetectorClientV11m,
             "yunet": YuNet.YuNetClient,
-            "fastmtcnn": FastMtCnn.FastMtCnnClient,
             "centerface": CenterFace.CenterFaceClient,
         },
     }
