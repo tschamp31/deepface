@@ -3,8 +3,8 @@ import os
 from typing import Any, List
 
 # 3rd party dependencies
-import cvcuda as cv2
-import numpy as np
+import cv2
+import cupy as np
 
 # project dependencies
 from deepface.commons import weight_utils
@@ -48,7 +48,7 @@ class YuNetClient(Detector):
         )
 
         try:
-            face_detector = cv2.FaceDetectorYN_create(weight_file, "", (0, 0))
+            face_detector = cv2.FaceDetectorYN.create(weight_file, "", (0, 0))
         except Exception as err:
             raise ValueError(
                 "Exception while calling opencv.FaceDetectorYN_create module."

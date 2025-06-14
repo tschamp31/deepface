@@ -1,7 +1,7 @@
 # project dependencies
-import tf_keras
-from tf_keras.src.engine.input_layer import InputLayer
-from tf_keras.src.models import clone_model
+import tensorflow.keras
+from tensorflow.keras.layers import InputLayer
+from tensorflow.keras.models import clone_model
 
 from deepface.commons import package_utils, weight_utils
 from deepface.models.FacialRecognition import FacialRecognition
@@ -11,7 +11,7 @@ logger = Logger()
 
 import os
 import h5py
-import numpy as np
+import cupy as np
 
 # pylint: disable=unsubscriptable-object
 
@@ -35,8 +35,8 @@ if tf_version == 1:
         Dense,
     )
 else:
-    from tf_keras.models import Model, Sequential
-    from tf_keras.layers import (
+    from tensorflow.keras.models import Model, Sequential
+    from tensorflow.keras.layers import (
         ZeroPadding2D,
         Input,
         Conv2D,
@@ -181,4 +181,4 @@ if __name__ == "__main__":
     USE_PB = True
     test = ArcFaceClient()
     for layer in test.model.layers:
-        print(layer.name, layer.input_shape, layer.output_shape)
+        print(layer, layer.name)

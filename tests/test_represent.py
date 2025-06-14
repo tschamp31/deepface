@@ -1,8 +1,7 @@
 # built-in dependencies
 import io
 import cv2
-import pytest
-import numpy as np
+import cupy as np
 import pytest
 from nvidia import nvimgcodec
 import cvcuda as cuda

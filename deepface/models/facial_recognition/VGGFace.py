@@ -2,13 +2,12 @@
 from typing import List
 import os
 
-import keras
 # 3rd party dependencies
-import numpy as np
-import tf_keras
+import cupy as np
+import tensorflow.keras
 
 # project dependencies
-from deepface.commons import package_utils, weight_utils
+from deepface.commons import package_utils, weight_utils, folder_utils
 from deepface.modules import verification
 from deepface.models.FacialRecognition import FacialRecognition
 from deepface.commons.logger import Logger
@@ -30,8 +29,8 @@ if tf_version == 1:
     )
     USE_PB = False
 else:
-    from tensorflow.python.keras.models import Model, Sequential, Input
-    from tensorflow.python.keras.layers import (
+    from tensorflow.keras.models import Model, Sequential
+    from tensorflow.keras.layers import (
         Convolution2D,
         ZeroPadding2D,
         MaxPooling2D,
@@ -42,6 +41,9 @@ else:
     from tensorflow.compiler.tf2tensorrt._pywrap_py_utils import is_tensorrt_enabled
     if is_tensorrt_enabled():
         import tensorflow.python.compiler.tensorrt.trt_convert as trt
+        import tensorrt as trt_runtime
+        print(trt_runtime)
+        print(dir(trt_runtime))
         if trt is not None:
             USE_PB = True
     else:
@@ -76,11 +78,11 @@ class VggFaceClient(FacialRecognition):
             embeddings (list): multi-dimensional vector
         """
         # model.predict causes memory issue when it is called in a for loop
-        # embedding = model.predict(img, verbose=0)[0].tolist()
+        # embedding = self.model.predict(img, verbose=0)
 
         # having normalization layer in descriptor troubles for some gpu users (e.g. issue 957, 966)
         # instead we are now calculating it with traditional way not with keras backend
-        embedding = super().forward(img)
+        embedding = self.model(img, training=False).numpy()
         if isinstance(embedding, list) and len(embedding) > 0 and isinstance(embedding[0], list):
             embedding = verification.l2_normalize(embedding, axis=1)
         else:
@@ -143,7 +145,6 @@ class VggFaceClient(FacialRecognition):
             file_name="vgg_face_weights.h5", source_url=WEIGHTS_URL
         )
 
-
         model = weight_utils.load_model_weights(model=layers, weight_file=weight_file)
 
         # 2622d dimensional model
@@ -159,8 +160,9 @@ class VggFaceClient(FacialRecognition):
         #     base_model_output
         # )
         #vgg_face_descriptor = Model(inputs=model.input, outputs=base_model_output)
+        USE_PB = True
         if USE_PB:
-            model = Model(inputs=model.input, outputs=output_layer)
+            model = Model(inputs=model.inputs, outputs=output_layer)
             weight_utils.convert_model_to_onnx(model, self.model_name)
             weight_utils.convert_model_to_trt_pb(model, self.model_name)
             return model
@@ -169,6 +171,8 @@ class VggFaceClient(FacialRecognition):
 
 if __name__ == "__main__":
     USE_PB = True
+    folder_utils.initialize_folder()
     test = VggFaceClient()
+    print(is_tensorrt_enabled())
     for layer in test.model.layers:
-        print(layer.name, layer.input_shape, layer.output_shape)
+        print(layer, layer.name)

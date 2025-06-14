@@ -1,6 +1,6 @@
 # 3rd party dependencies
 import pytest
-import numpy as np
+import cupy as np
 
 # project dependencies
 from deepface import DeepFace

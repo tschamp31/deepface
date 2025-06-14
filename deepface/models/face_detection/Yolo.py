@@ -4,7 +4,7 @@ from typing import List, Any
 from enum import Enum
 
 # 3rd party dependencies
-import numpy as np
+import cupy as np
 
 # project dependencies
 from deepface.models.Detector import Detector, FacialAreaRegion

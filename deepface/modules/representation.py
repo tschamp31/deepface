@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Union, Optional, Sequence, IO
 from collections import defaultdict
 
 # 3rd party dependencies
-import numpy as np
+import cupy as np
 
 # project dependencies
 from deepface.commons import image_utils

@@ -3,6 +3,7 @@ import hashlib
 
 # 3rd party dependencies
 import tensorflow as tf
+import tf_keras as keras
 
 # package dependencies
 from deepface.commons.logger import Logger
@@ -37,9 +38,9 @@ def validate_for_keras3():
         return
 
     try:
-        import tf_keras
+        import tensorflow.keras
 
-        logger.debug(f"tf_keras is already available - {tf_keras.__version__}")
+        logger.debug(f"tf_keras is already available - {keras.__version__}")
     except ImportError as err:
         # you may consider to install that package here
         raise ValueError(

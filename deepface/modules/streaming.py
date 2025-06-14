@@ -5,9 +5,9 @@ from typing import List, Tuple, Optional
 import traceback
 
 # 3rd party dependencies
-import numpy as np
-import pandas as pd
-import cvcuda as cv2
+import cupy as np
+import cudf as pd
+import cv2
 
 # project dependencies
 from deepface import DeepFace
@@ -90,13 +90,13 @@ def analysis(
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = cap.get(cv2.CAP_PROP_FPS)
-    fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # Codec for output file
+    fourcc = cv2.VideoWriter.fourcc(*"mp4v")  # Codec for output file
     # Ensure the output directory exists if output_path is provided
     if output_path:
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
     # Initialize video writer if output_path is provided
     video_writer = (
-        cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (width, height))
+        cv2.VideoWriter(output_path, cv2.VideoWriter.fourcc(*"mp4v"), fps, (width, height))
         if output_path
         else None
     )

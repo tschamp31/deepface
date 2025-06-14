@@ -5,9 +5,7 @@ from typing import Any, Dict, IO, List, Tuple, Union, Optional
 from heapq import nlargest
 
 import cvcuda
-import numpy as np
-import cvcuda as nvcv
-from nvidia import nvimgcodec
+import cupy as np
 
 # project dependencies
 from deepface.modules import modeling
@@ -241,7 +239,7 @@ def detect_faces(
     width_border = int(0.5 * width)
     if align is True:
         img = cv2.copyMakeBorder(
-            img,
+            img.__array__(),
             height_border,
             height_border,
             width_border,

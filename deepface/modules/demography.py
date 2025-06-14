@@ -2,7 +2,7 @@
 from typing import Any, Dict, List, Union, IO
 
 # 3rd party dependencies
-import numpy as np
+import cupy as np
 from tqdm import tqdm
 
 # project dependencies

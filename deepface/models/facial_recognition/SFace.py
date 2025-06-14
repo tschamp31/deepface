@@ -2,8 +2,8 @@
 from typing import Any, List, Union
 
 # 3rd party dependencies
-import numpy as np
-import cvcuda as cv
+import cupy as np
+import cvcuda as cv2
 
 # project dependencies
 from deepface.commons import weight_utils
@@ -72,7 +72,7 @@ class SFaceWrapper:
         SFace wrapper covering model construction, layer infos and predict
         """
         try:
-            self.model = cv.FaceRecognizerSF.create(
+            self.model = cv2.FaceRecognizerSF.create(
                 model=model_path, config="", backend_id=0, target_id=0
             )
         except Exception as err:

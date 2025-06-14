@@ -28,10 +28,10 @@ if tf_major == 1:
         PReLU,
     )
 else:
-    import tf_keras as keras
-    from tf_keras import backend as K
-    from tf_keras.models import Model
-    from tf_keras.layers import (
+    import tensorflow.keras as keras
+    from tensorflow.keras import backend as K
+    from tensorflow.keras.models import Model
+    from tensorflow.keras.layers import (
         Activation,
         Add,
         BatchNormalization,
@@ -309,4 +309,4 @@ if __name__ == '__main__':
     USE_PB = True
     test = GhostFaceNetClient()
     for layer in test.model.layers:
-        print(layer.name, layer.input_shape, layer.output_shape)
+        print(layer, layer.name)

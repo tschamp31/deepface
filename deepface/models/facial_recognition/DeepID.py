@@ -20,8 +20,8 @@ if tf_version == 1:
         Dropout,
     )
 else:
-    from tf_keras.models import Model, Sequential
-    from tf_keras.layers import (
+    from tensorflow.keras.models import Model, Sequential
+    from tensorflow.keras.layers import (
         Input,
         Conv2D,
         Dropout,
@@ -100,4 +100,4 @@ if __name__ == "__main__":
     USE_PB = True
     test = DeepIdClient()
     for layer in test.model.layers:
-        print(layer.name, layer.input_shape, layer.output_shape)
+        print(layer, layer.name)

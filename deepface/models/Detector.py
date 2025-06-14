@@ -1,7 +1,7 @@
 from typing import List, Tuple, Optional
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-import numpy as np
+import cupy as np
 
 # Notice that all facial detector models must be inherited from this class
 

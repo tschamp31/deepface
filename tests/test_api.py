@@ -7,7 +7,7 @@ from packaging import version
 
 # 3rd party dependencies
 import gdown
-import numpy as np
+import cupy as np
 import flask
 from flask import Flask
 import werkzeug

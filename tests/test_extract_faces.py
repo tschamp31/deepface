@@ -3,7 +3,7 @@ import base64
 
 # 3rd party dependencies
 import cv2
-import numpy as np
+import cupy as np
 import pytest
 from nvidia import nvimgcodec
 
@@ -52,7 +52,7 @@ def test_different_detectors():
             assert isinstance(right_eye[0], int)
             assert isinstance(right_eye[1], int)
 
-            # confidence must be float, not numpy not to have problem in api
+            # confidence must be float, not cupy not to have problem in api
             assert "confidence" in img_obj.keys()
             type_conf = type(img_obj["confidence"])
             assert isinstance(

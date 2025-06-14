@@ -9,11 +9,11 @@ import bz2
 # 3rd party dependencies
 import gdown
 import keras
-import numpy as np
+import cupy as np
 import onnx
 import tf2onnx
+
 from tensorflow.python.compiler.tensorrt import trt_convert as trt
-from tf_keras.export import ExportArchive
 from tensorflow.core.protobuf import saver_pb2
 from tensorflow.python.keras import Model
 from tensorflow.python.keras.models import save_model
@@ -26,7 +26,7 @@ tf_version = package_utils.get_tf_major_version()
 if tf_version == 1:
     from keras.models import Sequential
 else:
-    from tensorflow.keras.models import Sequential
+    from tensorflow.keras import Sequential
     import tensorflow as tf
     physical_devices = tf.config.list_physical_devices('GPU')
     for device in physical_devices:
@@ -157,7 +157,7 @@ def convert_model_to_trt_pb(model: Model, model_name: str, build_batch_size: int
             data_shape = (batch_size,) + image_shape
 
             for _ in range(100):
-                img = np.random.uniform(-1, 1, size=data_shape).astype("float32")
+                img = np.random.uniform(-1, 1, size=data_shape).astype("float32").get()
                 yield (img,)
 
         converter = trt.TrtGraphConverterV2(input_saved_model_dir=onnx_path, precision_mode=trt.TrtPrecisionMode.FP32,minimum_segment_size=3,max_workspace_size_bytes=6000000000)

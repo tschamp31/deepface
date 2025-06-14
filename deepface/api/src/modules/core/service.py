@@ -3,7 +3,7 @@ import traceback
 from typing import Optional, Union
 
 # 3rd party dependencies
-import numpy as np
+import cupy as np
 
 # project dependencies
 from deepface import DeepFace

@@ -5,8 +5,8 @@ from typing import List, Union, Optional, Dict, Any, Set
 import time
 
 # 3rd party dependencies
-import numpy as np
-import pandas as pd
+import cupy as np
+import cudf as pd
 from tqdm import tqdm
 
 # project dependencies

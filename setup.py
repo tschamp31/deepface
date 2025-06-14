@@ -4,7 +4,7 @@ import setuptools
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-#with open("Tensorflow-Docker/requirements.txt", "r", encoding="utf-8") as f:
+#with open("Tensorflow-Docker/requirements_old.txt", "r", encoding="utf-8") as f:
 #    requirements = f.read().split("\n")
 
 with open("package_info.json", "r", encoding="utf-8") as f:

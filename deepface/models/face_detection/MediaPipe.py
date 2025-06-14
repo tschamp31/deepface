@@ -3,7 +3,7 @@ import os
 from typing import Any, List
 
 # 3rd party dependencies
-import numpy as np
+import cupy as np
 
 # project dependencies
 from deepface.models.Detector import Detector, FacialAreaRegion

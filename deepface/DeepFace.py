@@ -10,8 +10,8 @@ os.environ["TF_USE_LEGACY_KERAS"] = "1"
 # pylint: disable=wrong-import-position
 
 # 3rd party dependencies
-import numpy as np
-import pandas as pd
+import cupy as np
+import cudf as pd
 import tensorflow as tf
 
 # package dependencies

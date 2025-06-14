@@ -1,6 +1,6 @@
 from abc import ABC
 from typing import Any, Union, List, Tuple
-import numpy as np
+import cupy as np
 from deepface.commons import package_utils
 
 tf_version = package_utils.get_tf_major_version()

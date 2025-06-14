@@ -1,6 +1,6 @@
 from typing import Union, List
 from abc import ABC, abstractmethod
-import numpy as np
+import cupy as np
 from deepface.commons import package_utils
 
 tf_version = package_utils.get_tf_major_version()

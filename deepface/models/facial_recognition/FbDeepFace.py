@@ -21,8 +21,8 @@ if tf_major == 1:
         Dropout,
     )
 else:
-    from tf_keras.models import Model, Sequential
-    from tf_keras.layers import (
+    from tensorflow.keras.models import Model, Sequential
+    from tensorflow.keras.layers import (
         Convolution2D,
         MaxPooling2D,
         Flatten,
@@ -57,7 +57,7 @@ class DeepFaceClient(FacialRecognition):
         if tf_major == 1:
             from keras.layers import LocallyConnected2D
         else:
-            from tf_keras.layers import LocallyConnected2D
+            from deepface.commons.locally_connected2d import LocallyConnected2D
 
         base_model = Sequential()
         base_model.add(
@@ -92,4 +92,4 @@ if __name__ == "__main__":
     USE_PB = True
     test = DeepFaceClient()
     for layer in test.model.layers:
-        print(layer.name, layer.input_shape, layer.output_shape)
+        print(layer, layer.name)

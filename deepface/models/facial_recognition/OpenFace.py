@@ -16,11 +16,11 @@ if tf_version == 1:
     MaxPooling2D, AveragePooling2D)
     from keras import backend as K
 else:
-    from tf_keras.models import Model
-    from tf_keras.layers import (Conv2D, ZeroPadding2D, Input, concatenate,
+    from tensorflow.keras.models import Model
+    from tensorflow.keras.layers import (Conv2D, ZeroPadding2D, Input, concatenate,
     Dense, Activation, Lambda, Flatten, BatchNormalization,
     MaxPooling2D, AveragePooling2D)
-    from tf_keras import backend as K
+    from tensorflow.keras import backend as K
 
 # pylint: disable=unnecessary-lambda
 
@@ -401,4 +401,4 @@ if __name__ == "__main__":
     USE_PB = True
     test = OpenFaceClient()
     for layer in test.model.layers:
-        print(layer.name, layer.input_shape, layer.output_shape)
+        print(layer, layer.name)

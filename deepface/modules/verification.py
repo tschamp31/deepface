@@ -3,7 +3,7 @@ import time
 from typing import Any, Dict, Optional, Union, List, Tuple
 
 # 3rd party dependencies
-import numpy as np
+import cupy as np
 
 # project dependencies
 from deepface.modules import representation, detection, modeling
@@ -240,6 +240,8 @@ def __extract_faces_and_embeddings(
         expand_percentage=expand_percentage,
         anti_spoofing=anti_spoofing,
     )
+
+    print(img_objs)
 
     # find embeddings for each face
     for img_obj in img_objs:

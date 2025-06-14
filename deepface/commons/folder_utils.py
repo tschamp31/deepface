@@ -12,8 +12,8 @@ def initialize_folder() -> None:
         OSError: if the folder cannot be created.
     """
     home = get_deepface_home()
-    deepface_home_path = os.path.join(home, ".deepface")
-    weights_path = os.path.join(deepface_home_path, "weights")
+    deepface_home_path = os.path.normpath(os.path.join(home, ".deepface"))
+    weights_path = os.path.normpath(os.path.join(deepface_home_path, "weights"))
 
     if not os.path.exists(deepface_home_path):
         os.makedirs(deepface_home_path, exist_ok=True)
@@ -31,4 +31,4 @@ def get_deepface_home() -> str:
     Returns:
         str: the home directory.
     """
-    return str(os.getenv("DEEPFACE_HOME", default=os.path.expanduser("~")))
+    return str(os.getenv("DEEPFACE_HOME", default="/IdeaProjects/deepface/deepface/models/facial_recognition"))

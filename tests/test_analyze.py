@@ -1,6 +1,6 @@
 # 3rd party dependencies
 import cv2
-import numpy as np
+import cupy as np
 from nvidia import nvimgcodec
 import cvcuda as cuda
 

@@ -7,15 +7,13 @@ import base64
 from pathlib import Path
 
 # 3rd party dependencies
-import requests
-import numpy as np
-import cvcuda
+import cupy as np
+# import cv2
+
 import tensorflow as tf
-import tf_keras
-from PIL import Image
+import tensorflow.keras
+
 from werkzeug.datastructures import FileStorage
-from nvidia import nvimgcodec
-ImageDecoder = nvimgcodec.Decoder()
 IMAGE_EXTS = {".jpg", ".jpeg", ".png"}
 PIL_EXTS = {"jpeg", "png"}
 
@@ -33,7 +31,7 @@ def list_images(path: str) -> List[str]:
         for file in f:
             if os.path.splitext(file)[1].lower() in IMAGE_EXTS:
                 exact_path = os.path.join(r, file)
-                with Image.open(exact_path) as img:  # lazy
+                with tf.image.decode_image(exact_path) as img:  # lazy
                     if img.format.lower() in PIL_EXTS:
                         images.append(exact_path)
     return images
@@ -51,7 +49,7 @@ def yield_images(path: str) -> Generator[str, None, None]:
         for file in f:
             if os.path.splitext(file)[1].lower() in IMAGE_EXTS:
                 exact_path = os.path.join(r, file)
-                with Image.open(exact_path) as img:  # lazy
+                with tf.image.decode_image(exact_path) as img:  # lazy
                     if img.format.lower() in PIL_EXTS:
                         yield exact_path
 
@@ -90,6 +88,8 @@ def load_image(img: Union[str, np.ndarray, IO[bytes]]) -> Tuple[np.ndarray, str]
     """
 
     # The image is already a numpy array
+    print(type(img))
+    print(img)
     if isinstance(img, np.ndarray):
         return img, "numpy array"
 
@@ -128,7 +128,7 @@ def load_image(img: Union[str, np.ndarray, IO[bytes]]) -> Tuple[np.ndarray, str]
     raw = tf.io.read_file(img)
     image = tf.image.decode_image(raw)
     # img_obj_bgr = ImageDecoder.read(image)
-    img_obj_bgr = image[...,::-1] #far far quicker than opencv
+    img_obj_bgr = image[..., ::-1] #far far quicker than opencv
     return img_obj_bgr, image
 
 @tf.function
@@ -222,5 +222,5 @@ def load_image_from_web(url: str) -> np.ndarray:
     #response.raise_for_status()
     #image_array = np.asarray(bytearray(response.raw.read()), dtype=np.uint8)
     #img = ImageDecoder.read(image_array, cv2.IMREAD_COLOR)
-    img = tf_keras.utils.get_file(fname=url.split("/")[-1], origin=url)
+    img = tensorflow.keras.utils.get_file(fname=url.split("/")[-1], origin=url)
     return img

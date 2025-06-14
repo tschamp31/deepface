@@ -2,7 +2,7 @@
 from typing import List, Union
 
 # 3rd party dependencies
-import numpy as np
+import cupy as np
 
 # project dependencies
 from deepface.commons import weight_utils

@@ -3,8 +3,8 @@ from typing import List
 from enum import IntEnum
 
 # 3rd party dependencies
-import cvcuda as cv2
-import numpy as np
+import cv2
+import cupy as np
 
 # project dependencies
 from deepface.models.face_detection import OpenCv

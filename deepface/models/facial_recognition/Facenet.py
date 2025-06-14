@@ -1,4 +1,8 @@
 # project dependencies
+from typing import Union, List
+
+import cupy as np
+
 from deepface.commons import package_utils, weight_utils
 from deepface.models.FacialRecognition import FacialRecognition
 from deepface.commons.logger import Logger
@@ -27,8 +31,8 @@ if tf_version == 1:
     )
     from keras import backend as K
 else:
-    from tf_keras.models import Model
-    from tf_keras.layers import (
+    from tensorflow.keras.models import Model
+    from tensorflow.keras.layers import (
         Activation,
         BatchNormalization,
         Concatenate,
@@ -41,7 +45,7 @@ else:
         MaxPooling2D,
         add,
     )
-    from tf_keras import backend as K
+    from tensorflow.keras import backend as K
 
 
 # pylint:disable=line-too-long
@@ -87,6 +91,10 @@ class FaceNet128dClient(FacialRecognition):
         weight_utils.convert_model_to_onnx(model=model,model_name=self.model_name)
         weight_utils.convert_model_to_trt_pb(model=model, model_name=self.model_name)
         return model
+
+    def forward(self, img: np.ndarray) -> Union[List[float], List[List[float]]]:
+        embedding = self.model(img, training=False).numpy()
+        return embedding
 
 
 class FaceNet512dClient(FacialRecognition):
@@ -1712,7 +1720,7 @@ if __name__ == '__main__':
     USE_PB = True
     test = FaceNet512dClient()
     for layer in test.model.layers:
-        print(layer.name, layer.input_shape, layer.output_shape)
+        print(layer, layer.name)
     test = FaceNet128dClient()
     for layer in test.model.layers:
-        print(layer.name, layer.input_shape, layer.output_shape)
+        print(layer, layer.name)

@@ -1,10 +1,9 @@
 # built-in dependencies
 from typing import List
 
-import PyNvVideoCodec
 # 3rd party dependencies
-import numpy as np
-import nvcv
+import cupy as np
+import cvcuda as cv2
 from mtcnn import MTCNN
 
 # project dependencies
@@ -33,7 +32,7 @@ class MtCnnClient(Detector):
         resp = []
 
         # mtcnn expects RGB but OpenCV read BGR
-        img_rgb = nvcv.cvtcolor(img, nvcv.ColorConversion.BGR2RGB)
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         #img_rgb = img[:, :, ::-1]
 
         detections = self.model.detect_faces(img_rgb)

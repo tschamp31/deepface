@@ -2,8 +2,8 @@
 from typing import Union
 
 # 3rd party dependencies
-import cvcuda as cv2
-import numpy as np
+import cv2
+import cupy as np
 
 # project dependencies
 from deepface.commons import weight_utils

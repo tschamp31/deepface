@@ -2,7 +2,7 @@
 from typing import List
 
 # 3rd party dependencies
-import numpy as np
+import cupy as np
 from retinaface import RetinaFace as rf
 
 # project dependencies

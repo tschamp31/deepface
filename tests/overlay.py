@@ -1,24 +1,25 @@
 # 3rd party dependencies
-import cv2
 import matplotlib.pyplot as plt
 from nvidia import nvimgcodec
-import nvcuda
+import tensorflow as tf
+import cvcuda as nvcuda
 # project dependencies
 from deepface.modules import streaming
 from deepface import DeepFace
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+decoder = nvimgcodec.Decoder()
 
-ImageDecoder = nvimgcodec.Decoder()
+img = decoder.read("tests/dataset/img1.jpg")
 
-img_path = "dataset/img1.jpg"
-img = ImageDecoder.read(img_path)
-
-overlay_img_path = "dataset/img6.jpg"
+overlay_img_path = os.path.abspath("./tests/dataset/img6.jpg")
 face_objs = DeepFace.extract_faces(overlay_img_path)
 overlay_img = face_objs[0]["face"][:, :, ::-1] * 255
 
-overlay_img = nvcuda.resize(overlay_img, (112, 112))
+overlay_img = overlay_img.resize(112, 112, refcheck=False)
 
-raw_img = img.copy()
+print(dir(img))
+raw_img = nvcuda.as_tensor(img, "HWC")
 
 demographies = DeepFace.analyze(img_path=img_path, actions=("age", "gender", "emotion"))
 demography = demographies[0]

@@ -3,7 +3,7 @@ from typing import Any, Union, List
 
 # 3rd party dependencies
 import cvcuda as cv2
-import numpy as np
+import cupy as np
 
 # project dependencies
 from deepface.models.Detector import Detector, FacialAreaRegion

@@ -3,7 +3,7 @@ from typing import Union
 
 # 3rd party dependencies
 from flask import Blueprint, request
-import numpy as np
+import cupy as np
 
 # project dependencies
 from deepface import DeepFace
